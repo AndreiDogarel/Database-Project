@@ -1,0 +1,61 @@
+	1) Să se afișeze numărul de goluri, codul, numele și prenumele jucătorilor care au marcat mai multe goluri decât media echipei sale și al căror antrenori conține litera "t", doar pentru echipele cu anul fondării mai mare de 1900.
+
+
+SELECT j.cod_jucator, j.nume_jucator || ' ' || j.prenume_jucator nume, j.numar_goluri
+FROM jucator j
+WHERE j.numar_goluri > (SELECT round(avg(numar_goluri))
+    				       FROM jucator jj, echipa e, antrenor a
+    				       WHERE jj.cod_echipa = e.cod_echipa AND j.cod_echipa = jj.cod_echipa AND a.nume_antrenor LIKE '%t%' AND EXTRACT(YEAR FROM e.data_fondarii) > 1900
+GROUP BY e.cod_echipa);
+
+
+
+	2) Să se afișeze codurile, porecla și numărul lunii din anul fondării pentru echipele care au un stadion cu capacitatea peste 40000 de locuri (să se afișeze și capacitatea).
+
+
+SELECT e.cod_echipa, e.porecla, EXTRACT(MONTH FROM e.data_fondarii) AS numar_luna, capacitate
+FROM echipa e, (SELECT cod_stadion, capacitate
+    			FROM stadion
+    			WHERE capacitate > 40000) stadioane
+WHERE e.cod_stadion = stadioane.cod_stadion;
+
+
+
+	3) Să se afișeze codul format numai din litere mari, media salariilor, media golurilor și a paselor decisive pentru echipele care au un salariu mediu mai mare de 100000.
+
+
+SELECT UPPER(e.cod_echipa), ROUND(AVG(j.salariu), 2) AS salariu_mediu, ROUND(AVG(j.numar_goluri)) AS medie_goluri, ROUND(AVG(j.numar_pase_decisive)) AS medie_pase_decisive
+FROM echipa e FULL OUTER JOIN jucator j ON e.cod_echipa = j.cod_echipa
+GROUP BY e.cod_echipa
+HAVING AVG(j.salariu) > 100000;
+
+
+
+	4) Să se afișeze poziția, numele complet și salariul jucătorilor care au media de goluri și pase decisive peste 10, ordonați descrescător după salariu și crescător după numele complet.
+
+
+SELECT NVL(DECODE(pozitie_jucator, 'Atacant', 'ATT', 'Mijlocas', 'MID', 'Fundas', 'DEF', NULL), 'Nedefinit') AS pozitie_jucator,
+       CONCAT(prenume_jucator, CONCAT(' ', nume_jucator)) AS nume_complet,
+       NVL(salariu, 0) AS salariu
+FROM jucator
+WHERE ((numar_goluri + numar_pase_decisive) / 2) > 10
+ORDER BY 3 DESC, 2 ASC;
+
+
+
+	5) Să se afișeze codul, numele, numărul de goluri și pase decisive, poziția și un mesaj „Productiv” pentru jucătorii care au peste 5 goluri și peste 5 pase decisive, altfel se va afișa mesajul „Neproductiv” (în ordine crescătoare după nume).
+
+
+WITH productivitate AS (
+    SELECT cod_jucator, NVL(numar_goluri, 0) AS total_goluri, NVL(numar_pase_decisive, 0) AS total_pase_decisive
+    FROM jucator
+)
+SELECT j.cod_jucator, j.nume_jucator, NVL(productivitate.total_goluri, 0) AS total_goluri, NVL(productivitate.total_pase_decisive, 0) AS total_pase_decisive,
+    CASE
+        WHEN (NVL(productivitate.total_goluri, 0) >= 5 AND NVL(productivitate.total_pase_decisive, 0) >= 5) THEN 'Productiv'
+        ELSE 'Neproductiv'
+    END AS categorie_productivitate,
+    DECODE(j.pozitie_jucator, 'Atacant', 'ATT', 'Mijlocas', 'MID', 'Fundas', 'DEF', NULL) AS pozitie_jucator
+FROM jucator j, productivitate
+where j.cod_jucator = productivitate.cod_jucator
+ORDER BY j.nume_jucator;

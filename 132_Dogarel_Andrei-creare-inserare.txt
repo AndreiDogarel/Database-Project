@@ -1,0 +1,749 @@
+--secvente
+create sequence jucator_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence stadion_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence director_sportiv_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence patron_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence cartonas_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence arbitru_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence meci_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence rezultat_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence locatie_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+create sequence antrenor_id_generator
+start with 1
+increment by 1
+minvalue 1
+maxvalue 100000
+nocycle;
+
+
+
+--creare tabele
+create table LOCATIE (
+    cod_locatie number(5) constraint pk_locatie primary key,
+    nume_tara varchar2(25) constraint tara_null not null,
+    nume_oras varchar2(25) constraint oras_null not null
+);
+
+create table ANTRENOR (
+    cod_antrenor number(5) constraint pk_antrenor primary key,
+    nume_antrenor varchar2(25) constraint nume_antrenor_null not null,
+    prenume_antrenor varchar2(25) constraint prenume_antrenor_null not null,
+    varsta number(3) constraint varsta_antrenor_null not null
+);
+
+create table STADION (
+    cod_stadion number(5) constraint pk_stadion primary key,
+    cod_locatie number(5) constraint locatie_stadion_null not null,
+    nume_stadion varchar2(50) constraint nume_stadion_null not null,
+    capacitate number(10) constraint capacitate_stadion_null not null,
+    constraint fk_stadion_locatie foreign key (cod_locatie) references LOCATIE(cod_locatie)
+);
+
+create table ECHIPA (
+    cod_echipa varchar2(50) constraint pk_echipa primary key,
+    cod_antrenor number(5) constraint antrenor_echipa_null not null,
+    cod_stadion number(5) constraint stadion_echipa_null not null,
+    porecla varchar2(50) constraint porecla_echipa_null not null,
+    data_fondarii date constraint data_fondare_echipa_null not null,
+    constraint fk_echipa_antrenor foreign key (cod_antrenor) references ANTRENOR(cod_antrenor),
+    constraint fk_echipa_stadion foreign key (cod_stadion) references STADION(cod_stadion)
+);
+
+create table JUCATOR (
+    cod_jucator number(5) constraint pk_jucator primary key,
+    cod_echipa varchar2(50) constraint echipa_jucator_null not null,
+    nume_jucator varchar2(25) constraint nume_jucator_null not null,
+    prenume_jucator varchar2(25),
+    varsta number(3) constraint varsta_jucator_null not null,
+    pozitie_jucator varchar2(25) constraint pozitie_jucator_null not null,
+    salariu number(10) constraint salariu_jucator_null not null,
+    numar_aparitii number(10) constraint aparitii_jucator_null not null,
+    numar_goluri number(5) constraint goluri_jucator_null not null,
+    numar_pase_decisive number(5) constraint pase_decisive_jucator_null not null,
+    constraint check_pozitie check (lower(pozitie_jucator) in ('portar', 'fundas', 'mijlocas', 'atacant')),
+    constraint fk_jucator_echipa foreign key (cod_echipa) references ECHIPA(cod_echipa)
+);
+
+create table DIRECTOR_SPORTIV (
+    cod_director_sportiv number(5) constraint pk_director_sportiv primary key,
+    cod_echipa varchar2(50) constraint echipa_director_sportiv_null not null,
+    nume_director varchar2(25) constraint nume_director_sportiv_null not null,
+    prenume_director varchar2(25) constraint prenume_director_sportiv_null not null,
+    varsta number(3) constraint varsta_director_sportiv_null not null,
+    constraint fk_director_sportiv_echipa foreign key (cod_echipa) references ECHIPA(cod_echipa)
+);
+
+create table PATRON (
+    cod_patron number(5) constraint pk_patron primary key,
+    nume_patron varchar2(25) constraint nume_patron_null not null,
+    prenume_patron varchar2(25) constraint prenume_patron_null not null,
+    varsta number(3) constraint varsta_patron_null not null
+);
+
+create table ARBITRU (
+    cod_arbitru number(5) constraint pk_arbitru primary key,
+    nume_arbitru varchar2(25) constraint nume_arbitru_null not null,
+    prenume_arbitru varchar2(25) constraint prenume_arbitru_null not null,
+    varsta number(3) constraint varsta_arbitru_null not null
+);
+
+create table CARTONAS (
+    cod_cartonas number(5) constraint pk_cartonas primary key,
+    data_acordare date constraint data_acordare_cartonas_null not null,
+    culoare varchar2(10) constraint culoare_cartonas_null not null,
+    constraint check_culoare check (lower(culoare) in ('rosu', 'galben'))
+);
+
+create table REZULTAT (
+    cod_rezultat number(5) constraint pk_rezultat primary key,
+    numar_goluri_gazde number(5) constraint goluri_gazde_null not null,
+    numar_goluri_oaspeti number(5) constraint goluri_oaspeti_null not null
+);
+
+create table MECI (
+    cod_meci number(5) constraint pk_meci primary key,
+    cod_echipa_gazda varchar2(50) constraint echipa_gazda_null not null,
+    cod_echipa_oaspete varchar2(50) constraint echipa_oaspete_null not null,
+    cod_stadion number(5) constraint stadion_meci_null not null,
+    cod_arbitru number(5) constraint arbitru_meci_null not null,
+    cod_rezultat number(5) constraint rezultat_meci_null not null,
+    data_meci date constraint data_meci_null not null,
+    constraint fk_meci_gazda foreign key (cod_echipa_gazda) references ECHIPA(cod_echipa),
+    constraint fk_meci_oaspete foreign key (cod_echipa_oaspete) references ECHIPA(cod_echipa),
+    constraint fk_meci_stadion foreign key (cod_stadion) references STADION(cod_stadion),
+    constraint fk_meci_arbitru foreign key (cod_arbitru) references ARBITRU(cod_arbitru),
+    constraint fk_meci_rezultat foreign key (cod_rezultat) references REZULTAT(cod_rezultat)
+);
+
+create table FINANTEAZA (
+    cod_actiune number(5) constraint pk_finanteaza primary key,
+    cod_patron number(5) constraint patron_finanteaza_null not null,
+    cod_echipa varchar2(50) constraint patron_finanteaza_echipa_null not null,
+    constraint fk_finanteaza_patron foreign key (cod_patron) references PATRON(cod_patron),
+    constraint fk_finanteaza_echipa foreign key (cod_echipa) references ECHIPA(cod_echipa)
+);
+
+create table ACORDA (
+    cod_avertisment number(5) constraint pk_acorda primary key,
+    cod_arbitru number(5) constraint acorda_arbitru_null not null,
+    cod_cartonas number(5) constraint acorda_cartonas_null not null,
+    cod_jucator number(5) constraint acorda_jucator_null not null,
+    constraint fk_acorda_arbitru foreign key (cod_arbitru) references ARBITRU(cod_arbitru),
+    constraint fk_acorda_cartonas foreign key (cod_cartonas) references CARTONAS(cod_cartonas),
+    constraint fk_acorda_jucator foreign key (cod_jucator) references JUCATOR(cod_jucator)
+);
+
+
+
+--inserari
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'London');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Birmingham');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Brentford');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Brighton');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Burnley');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'London');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'London');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Liverpool');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Leeds');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Leicester');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Liverpool');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Manchester');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Manchester');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Newcastle');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Norwich');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Southampton');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'London');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Watford');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'London');
+INSERT INTO LOCATIE(cod_locatie, nume_tara, nume_oras) VALUES (locatie_id_generator.nextval, 'England', 'Wolverhampton');
+
+
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 1, 'Emirates Stadium', 60260);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 2, 'Villa Park', 42785);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 3, 'Brentford Community Stadium', 17339);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 4, 'Falmer Stadium', 30750);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 5, 'Turf Moor', 21944);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 6, 'Stamford Bridge', 40853);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 7, 'Selhurst Park', 26309);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 8, 'Goodison Park', 39571);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 9, 'Elland Road', 37916);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 10, 'King Power Stadium', 32312);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 11, 'Anfield', 53291);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 12, 'Etihad Stadium', 55097);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 13, 'Old Trafford', 74879);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 14, 'St. Jame Park', 52339);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 15, 'Carrow Road', 27244);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 16, 'St. Mary Stadium', 32689);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 17, 'Tottenham Hotspur Stadium', 62747);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 18, 'Vicarage Road', 21577);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 19, 'London Stadium', 60000);
+INSERT INTO STADION(cod_stadion, cod_locatie, nume_stadion, capacitate) VALUES (stadion_id_generator.nextval, 20, 'Molineux Stadium', 31700);
+
+
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Arteta', 'Mikel', 39);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Smith', 'Dean', 50);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Frank', 'Thomas', 48);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Potter', 'Graham', 46);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Dyche', 'Sean', 50);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Tuchel', 'Thomas', 48);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Vieira', 'Patrick', 45);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Benitez', 'Rafael', 61);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Bielsa', 'Marcelo', 66);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Rodgers', 'Brendan', 48);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Klopp', 'Jurgen', 54);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Guardiola', 'Pep', 51);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Solskjaer', 'Ole Gunnar', 48);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Bruce', 'Steve', 61);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Farke', 'Daniel', 45);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Hasenhuttl', 'Ralph', 54);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Nuno', 'Espírito Santo', 47);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Smith', 'Graham', 49);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Moyes', 'David', 58);
+INSERT INTO ANTRENOR(cod_antrenor, nume_antrenor, prenume_antrenor, varsta) VALUES (antrenor_id_generator.nextval, 'Lage', 'Bruno', 45);
+
+
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Arsenal', 1, 1, 'The Gunners', DATE '1886-12-01');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Aston Villa', 2, 2, 'The Villans', DATE '1874-11-21');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Brentford', 3, 3, 'The Bees', DATE '1889-10-10');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Brighton & Hove Albion', 4, 4, 'The Seagulls', DATE '1901-06-24');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Burnley', 5, 5, 'The Clarets', DATE '1882-05-18');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Chelsea', 6, 6, 'The Blues', DATE '1905-03-10');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Crystal Palace', 7, 7, 'The Eagles', DATE '1905-09-10');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Everton', 8, 8, 'The Toffees', DATE '1878-01-01');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Leeds United', 9, 9, 'The Whites', DATE '1919-10-17');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Leicester City', 10, 10, 'The Foxes', DATE '1884-01-01');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Liverpool', 11, 11, 'The Reds', DATE '1892-06-03');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Manchester City', 12, 12, 'The Citizens', DATE '1880-04-16');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Manchester United', 13, 13, 'The Red Devils', DATE '1878-01-01');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Newcastle United', 14, 14, 'The Magpies', DATE '1892-12-09');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Norwich City', 15, 15, 'The Canaries', DATE '1902-06-17');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Southampton', 16, 16, 'The Saints', DATE '1885-11-21');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Tottenham Hotspur', 17, 17, 'Spurs', DATE '1882-09-05');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Watford', 18, 18, 'The Hornets', DATE '1881-04-15');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('West Ham United', 19, 19, 'The Hammers', DATE '1895-06-29');
+INSERT INTO ECHIPA(cod_echipa, cod_antrenor, cod_stadion, porecla, data_fondarii) VALUES ('Wolverhampton Wanderers', 20, 20, 'Wolves', DATE '1877-03-01');
+
+
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Kroenke', 'Stan', 74);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Sawiris', 'Nassef', 60);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Benham', 'Matthew', 51);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Bloom', 'Tony', 52);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Garlick', 'Alan', 55);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Abramovich', 'Roman', 55);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Harris', 'Steve', 55);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Moshiri', 'Farhad', 67);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Radrizzani', 'Andrea', 47);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Srivaddhanaprabha', 'Aiyawatt', 36);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Henry', 'John', 72);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Al Mubarak', 'Khaldoon', 45);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Glazer', 'Joel', 51);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Ashley', 'Mike', 57);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Delia', 'Smith', 79);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Gao', 'Jisheng', 57);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Lewis', 'Joe', 84);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Gino', 'Pozzo', 60);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Sullivan', 'David', 72);
+INSERT INTO PATRON (cod_patron, nume_patron, prenume_patron, varsta) VALUES (patron_id_generator.nextval, 'Shi', 'Jeff', 54);
+
+
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Arsenal', 'Edu', 'Gaspar', 43);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Aston Villa', 'Lange', 'Johan', 42);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Brentford', 'Giles', 'Rasmus Ankersen', 39);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Brighton & Hove Albion', 'Weaver', 'Dan', 49);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Burnley', 'Dein', 'Barry', 55);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Chelsea', 'Granovskaia', 'Marina', 46);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Crystal Palace', 'Douglas', 'Doug', 53);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Everton', 'Brands', 'Marcel', 59);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Leeds United', 'Orta', 'Victor', 45);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Leicester City', 'Rudkin', 'Jon', 52);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Liverpool', 'Edwards', 'Michael', 42);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Manchester City', 'Txiki', 'Begiristain', 57);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Manchester United', 'Murtough', 'John', 49);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Newcastle United', 'Charnley', 'Lee', 45);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Norwich City', 'Webber', 'Stuart', 37);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Southampton', 'Holt', 'Matt', 44);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Tottenham Hotspur', 'Paratici', 'Fabio', 49);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Watford', 'Mislintat', 'Sven', 49);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'West Ham United', 'Husillos', 'Mario', 62);
+INSERT INTO DIRECTOR_SPORTIV(cod_director_sportiv, cod_echipa, nume_director, prenume_director, varsta) VALUES (director_sportiv_id_generator.nextval, 'Wolverhampton Wanderers', 'Thelwell', 'Kevin', 47);
+
+
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Aubameyang', 'Pierre-Emerick', 32, 'Atacant', 250000, 30, 15, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Tierney', 'Kieran', 24, 'Fundas', 150000, 20, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Leno', 'Bernd', 29, 'Portar', 180000, 25, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Saka', 'Bukayo', 20, 'Mijlocas', 120000, 30, 6, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Partey', 'Thomas', 28, 'Mijlocas', 150000, 25, 2, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Gabriel', '', 23, 'Fundas', 100000, 20, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Xhaka', 'Granit', 29, 'Mijlocas', 140000, 30, 3, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Pepe', 'Nicolas', 26, 'Atacant', 180000, 25, 8, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'White', 'Ben', 23, 'Fundas', 100000, 20, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Ramsdale', 'Aaron', 23, 'Portar', 120000, 15, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Smith Rowe', 'Emile', 21, 'Mijlocas', 80000, 25, 4, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Lacazette', 'Alexandre', 30, 'Atacant', 200000, 28, 12, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Bellerin', 'Hector', 26, 'Fundas', 120000, 25, 1, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Lokonga', 'Albert', 21, 'Mijlocas', 90000, 18, 2, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Chambers', 'Calum', 26, 'Fundas', 80000, 15, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Nketiah', 'Eddie', 22, 'Atacant', 80000, 20, 5, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Holding', 'Rob', 25, 'Fundas', 100000, 23, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Elneny', 'Mohamed', 29, 'Mijlocas', 90000, 22, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Pepe', 'Miguel', 21, 'Atacant', 70000, 12, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Tavares', 'Nuno', 20, 'Fundas', 60000, 10, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Nelson', 'Reiss', 22, 'Atacant', 70000, 15, 3, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Maitland-Niles', 'Ainsley', 23, 'Mijlocas', 80000, 18, 1, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Arsenal', 'Runarsson', 'Alex', 26, 'Portar', 60000, 10, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Grealish', 'Jack', 26, 'Mijlocas', 200000, 25, 10, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Martinez', 'Emiliano', 29, 'Portar', 150000, 30, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Mings', 'Tyrone', 28, 'Fundas', 120000, 28, 2, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Watkins', 'Ollie', 25, 'Atacant', 160000, 30, 12, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Cash', 'Matt', 24, 'Fundas', 100000, 25, 0, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'McGinn', 'John', 27, 'Mijlocas', 110000, 28, 3, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Traore', 'Bertrand', 25, 'Mijlocas', 140000, 20, 4, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Targett', 'Matt', 25, 'Fundas', 90000, 26, 0, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Ramsey', 'Jacob', 20, 'Mijlocas', 70000, 15, 1, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Konsa', 'Ezri', 24, 'Fundas', 100000, 25, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Heaton', 'Tom', 35, 'Portar', 90000, 10, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'El Ghazi', 'Anwar', 26, 'Atacant', 120000, 20, 6, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Sanson', 'Morgan', 27, 'Mijlocas', 130000, 18, 2, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Wesley', '', 24, 'Atacant', 90000, 12, 3, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Engels', 'Bjorn', 26, 'Fundas', 80000, 15, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Nakamba', 'Marvelous', 27, 'Mijlocas', 70000, 20, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Taylor', 'Neil', 26, 'Fundas', 80000, 18, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Chukwuemeka', 'Carney', 18, 'Mijlocas', 60000, 5, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Steer', 'Jed', 28, 'Portar', 70000, 5, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Hause', 'Kortney', 26, 'Fundas', 80000, 15, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Philogene-Bidace', 'Jaden', 19, 'Atacant', 50000, 2, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Aston Villa', 'Johansson', 'Johan', 20, 'Mijlocas', 60000, 3, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Toney', 'Ivan', 25, 'Atacant', 80000, 38, 31, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Raya', 'David', 26, 'Portar', 70000, 38, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Janelt', 'Christian', 23, 'Mijlocas', 60000, 37, 2, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Pinnock', 'Ethan', 28, 'Fundas', 50000, 38, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Mbeumo', 'Bryan', 22, 'Mijlocas', 60000, 36, 9, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Henry', 'Rico', 23, 'Fundas', 55000, 38, 2, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Norgaard', 'Christian', 27, 'Mijlocas', 65000, 33, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Canos', 'Sergi', 24, 'Mijlocas', 60000, 37, 7, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Mbuemo', 'Bryan', 22, 'Atacant', 50000, 30, 6, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Dasilva', 'Josh', 23, 'Fundas', 55000, 34, 1, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Jansson', 'Pontus', 30, 'Fundas', 70000, 31, 3, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Forss', 'Marcus', 21, 'Atacant', 50000, 20, 4, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Goode', 'Charlie', 26, 'Fundas', 60000, 18, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Marcondes', 'Emiliano', 26, 'Mijlocas', 60000, 16, 2, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Jensen', 'Mathias', 25, 'Mijlocas', 65000, 17, 3, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Rasmussen', 'Mads', 23, 'Fundas', 55000, 10, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Dervisoglu', 'Halil', 21, 'Atacant', 50000, 5, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Reid', 'Sam', 28, 'Mijlocas', 60000, 6, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Ghoddos', 'Saman', 28, 'Mijlocas', 60000, 4, 1, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Thompson', 'Myles', 22, 'Fundas', 50000, 2, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Wissa', 'Yoane', 24, 'Atacant', 55000, 1, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brentford', 'Gilbert', 'Luke', 20, 'Mijlocas', 45000, 1, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Maupay', 'Neal', 25, 'Atacant', 90000, 37, 9, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Lamptey', 'Tariq', 21, 'Fundas', 70000, 26, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Sanchez', 'Robert', 24, 'Portar', 60000, 38, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'White', 'Ben', 23, 'Fundas', 80000, 36, 1, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'March', 'Solly', 27, 'Mijlocas', 60000, 34, 5, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Gross', 'Pascal', 30, 'Mijlocas', 70000, 38, 3, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Dunk', 'Lewis', 29, 'Fundas', 80000, 38, 3, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Bissouma', 'Yves', 24, 'Mijlocas', 90000, 38, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Moder', 'Jakub', 21, 'Mijlocas', 60000, 30, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Webster', 'Adam', 26, 'Fundas', 70000, 32, 1, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Mac Allister', 'Alexis', 23, 'Mijlocas', 65000, 35, 3, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Tau', 'Percy', 27, 'Atacant', 75000, 27, 4, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Walton', 'Christian', 25, 'Portar', 60000, 2, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Propper', 'Davy', 30, 'Mijlocas', 70000, 20, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Veltman', 'Joel', 29, 'Fundas', 75000, 27, 2, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Andone', 'Florin', 28, 'Atacant', 70000, 14, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Karbownik', 'Michal', 21, 'Fundas', 60000, 11, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Connolly', 'Aaron', 21, 'Atacant', 65000, 18, 3, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Gyokeres', 'Viktor', 23, 'Atacant', 55000, 8, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Richards', 'Haydon', 23, 'Fundas', 60000, 4, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Walton', 'Carl', 25, 'Portar', 50000, 1, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Brighton & Hove Albion', 'Proper', 'Jurgen', 19, 'Mijlocas', 40000, 2, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Wood', 'Chris', 29, 'Atacant', 70000, 36, 12, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Tarkowski', 'James', 28, 'Fundas', 80000, 38, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Pope', 'Nick', 29, 'Portar', 90000, 36, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Taylor', 'Charlie', 28, 'Fundas', 60000, 32, 1, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Westwood', 'Ashley', 31, 'Mijlocas', 70000, 36, 4, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'McNeil', 'Dwight', 21, 'Mijlocas', 80000, 37, 5, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Mee', 'Ben', 31, 'Fundas', 70000, 34, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Brownhill', 'Josh', 25, 'Mijlocas', 65000, 38, 2, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Vydra', 'Matej', 29, 'Atacant', 60000, 28, 3, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Lowton', 'Matthew', 31, 'Fundas', 60000, 26, 0, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Barnes', 'Ashley', 31, 'Atacant', 70000, 22, 7, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Cork', 'Jack', 32, 'Mijlocas', 75000, 16, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Rodriguez', 'Jay', 32, 'Atacant', 65000, 18, 4, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Bardsley', 'Phil', 36, 'Fundas', 55000, 11, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Long', 'Kevin', 31, 'Fundas', 60000, 10, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Peacock-Farrell', 'Bailey', 24, 'Portar', 50000, 2, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Stephens', 'Dale', 32, 'Mijlocas', 60000, 7, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Mancini', 'Jordan', 20, 'Fundas', 45000, 1, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Benson', 'Josh', 21, 'Mijlocas', 50000, 4, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Pieters', 'Erik', 28, 'Fundas', 55000, 10, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Norris', 'Will', 23, 'Portar', 40000, 0, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Burnley', 'Richardson', 'Lewis', 19, 'Atacant', 40000, 0, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Lukaku', 'Romelu', 28, 'Atacant', 200000, 38, 23, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Kante', 'NGolo', 30, 'Mijlocas', 180000, 36, 4, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Chilwell', 'Ben', 24, 'Fundas', 120000, 31, 2, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Azpilicueta', 'Cesar', 32, 'Fundas', 140000, 37, 1, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Jorginho', '', 30, 'Mijlocas', 160000, 35, 7, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Mendy', 'Edouard', 29, 'Portar', 100000, 36, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Silva', 'Thiago', 37, 'Fundas', 150000, 28, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Havertz', 'Kai', 22, 'Atacant', 180000, 33, 10, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Mount', 'Mason', 22, 'Mijlocas', 120000, 37, 9, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Rudiger', 'Antonio', 28, 'Fundas', 140000, 34, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Alonso', 'Marcos', 31, 'Fundas', 100000, 30, 5, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Pulisic', 'Christian', 23, 'Atacant', 140000, 27, 6, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Ziyech', 'Hakim', 28, 'Mijlocas', 150000, 23, 4, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'James', 'Reece', 21, 'Fundas', 100000, 32, 1, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Kovacic', 'Mateo', 27, 'Mijlocas', 120000, 26, 2, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Christensen', 'Andreas', 25, 'Fundas', 100000, 23, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Giroud', 'Olivier', 34, 'Atacant', 140000, 19, 5, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Hudson-Odoi', 'Callum', 21, 'Atacant', 100000, 20, 3, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Zouma', 'Kurt', 26, 'Fundas', 120000, 18, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Barkley', 'Ross', 28, 'Mijlocas', 100000, 16, 1, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Emerson', 'Palmieri', 27, 'Fundas', 90000, 12, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Chelsea', 'Bakayoko', 'Tiemoue', 27, 'Mijlocas', 80000, 8, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Zaha', 'Wilfried', 29, 'Atacant', 100000, 36, 11, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Milivojevic', 'Luka', 30, 'Mijlocas', 80000, 35, 4, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Guaita', 'Vicente', 34, 'Portar', 70000, 37, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Kouyate', 'Cheikhou', 32, 'Mijlocas', 60000, 33, 2, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Ward', 'Joel', 31, 'Fundas', 50000, 32, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Townsend', 'Andros', 30, 'Atacant', 70000, 34, 6, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Cahill', 'Gary', 36, 'Fundas', 60000, 25, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Ayew', 'Jordan', 30, 'Atacant', 90000, 35, 8, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'McArthur', 'James', 34, 'Mijlocas', 60000, 30, 3, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Tomkins', 'James', 32, 'Fundas', 50000, 22, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Benteke', 'Christian', 30, 'Atacant', 80000, 28, 7, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Riedewald', 'Jairo', 25, 'Mijlocas', 50000, 19, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Schlupp', 'Jeffrey', 28, 'Mijlocas', 60000, 24, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Kelly', 'Martin', 31, 'Fundas', 40000, 16, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Guéhi', 'Marc', 20, 'Fundas', 50000, 14, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Butland', 'Jack', 28, 'Portar', 40000, 12, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Rak-Sakyi', 'Jesurun', 18, 'Atacant', 30000, 6, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Mitchell', 'Tyrick', 21, 'Fundas', 40000, 9, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Woods', 'Malachi', 21, 'Fundas', 30000, 4, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Hannam', 'Jay', 20, 'Fundas', 30000, 3, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Matthews', 'Scott', 19, 'Mijlocas', 30000, 2, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Crystal Palace', 'Jacob', 'Jacob', 18, 'Fundas', 20000, 1, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Calvert-Lewin', 'Dominic', 24, 'Atacant', 120000, 35, 20, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Richarlison', '', 24, 'Atacant', 100000, 36, 15, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Digne', 'Lucas', 27, 'Fundas', 90000, 33, 2, 12);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Pickford', 'Jordan', 27, 'Portar', 80000, 37, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Coleman', 'Seamus', 32, 'Fundas', 70000, 32, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Allan', '', 30, 'Mijlocas', 90000, 29, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Gomes', 'André', 28, 'Mijlocas', 80000, 30, 1, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Sigurdsson', 'Gylfi', 31, 'Mijlocas', 90000, 33, 6, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Keane', 'Michael', 28, 'Fundas', 70000, 31, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Mina', 'Yerry', 26, 'Fundas', 70000, 29, 2, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Doucouré', 'Abdoulaye', 28, 'Mijlocas', 80000, 28, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Højbjerg', 'Pierre-Emile', 26, 'Mijlocas', 80000, 27, 3, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Gordon', 'Anthony', 20, 'Mijlocas', 30000, 15, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Tosun', 'Cenk', 30, 'Atacant', 70000, 17, 4, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Delph', 'Fabian', 31, 'Mijlocas', 60000, 14, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Holgate', 'Mason', 24, 'Fundas', 50000, 20, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Bernard', '', 29, 'Mijlocas', 80000, 18, 2, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Nkounkou', 'Niels', 20, 'Fundas', 40000, 10, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Davies', 'Tom', 23, 'Mijlocas', 60000, 11, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Iwobi', 'Alex', 25, 'Mijlocas', 70000, 16, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Begović', 'Asmir', 34, 'Portar', 60000, 8, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Everton', 'Kenny', 'Jonjoe', 24, 'Fundas', 50000, 6, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Bamford', 'Patrick', 28, 'Atacant', 90000, 36, 17, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Raphinha', '', 24, 'Mijlocas', 80000, 35, 9, 9);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Harrison', 'Jack', 24, 'Mijlocas', 70000, 37, 8, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Dallas', 'Stuart', 30, 'Fundas', 60000, 38, 5, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Ayling', 'Luke', 30, 'Fundas', 50000, 37, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Klich', 'Mateusz', 31, 'Mijlocas', 70000, 36, 4, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Phillips', 'Kalvin', 25, 'Mijlocas', 80000, 34, 2, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Cooper', 'Liam', 30, 'Fundas', 60000, 35, 3, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Rodrigo', '', 30, 'Atacant', 90000, 28, 6, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Llorente', 'Diego', 28, 'Fundas', 70000, 26, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Alioski', 'Ezgjan', 29, 'Fundas', 60000, 31, 2, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leeds United', 'Struijk', 'Pascal', 22, 'Fundas', 50000, 25, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Vardy', 'Jamie', 34, 'Atacant', 100000, 38, 23, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Tielemans', 'Youri', 24, 'Mijlocas', 90000, 36, 8, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Maddison', 'James', 24, 'Mijlocas', 80000, 32, 6, 9);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Schmeichel', 'Kasper', 34, 'Portar', 80000, 38, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Soyuncu', 'Caglar', 25, 'Fundas', 70000, 35, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Evans', 'Jonny', 33, 'Fundas', 70000, 34, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Pereira', 'Ricardo', 28, 'Fundas', 70000, 31, 1, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Ndidi', 'Wilfred', 24, 'Mijlocas', 80000, 33, 3, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Barnes', 'Harvey', 23, 'Atacant', 60000, 32, 5, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Castagne', 'Timothy', 25, 'Fundas', 60000, 30, 2, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Iheanacho', 'Kelechi', 24, 'Atacant', 70000, 28, 7, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Leicester City', 'Fofana', 'Wesley', 20, 'Fundas', 50000, 26, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Salah', 'Mohamed', 29, 'Atacant', 200000, 38, 22, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Mane', 'Sadio', 29, 'Atacant', 180000, 37, 15, 9);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Firmino', 'Roberto', 29, 'Atacant', 160000, 35, 9, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Van Dijk', 'Virgil', 30, 'Fundas', 180000, 38, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Robertson', 'Andrew', 27, 'Fundas', 120000, 38, 1, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Trent-Alexander Arnold', 'Arnold', 22, 'Fundas', 150000, 32, 2, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Henderson', 'Jordan', 31, 'Mijlocas', 150000, 36, 3, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Thiago', 'Alcantara', 30, 'Mijlocas', 160000, 30, 2, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Fabinho', '', 27, 'Mijlocas', 140000, 34, 0, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Matip', 'Joel', 29, 'Fundas', 100000, 25, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Alisson', '', 29, 'Portar', 180000, 35, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Jota', 'Diogo', 24, 'Atacant', 120000, 28, 9, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Liverpool', 'Keita', 'Naby', 26, 'Mijlocas', 100000, 20, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'De Bruyne', 'Kevin', 30, 'Mijlocas', 250000, 34, 8, 16);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Sterling', 'Raheem', 26, 'Atacant', 220000, 35, 14, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Aguero', 'Sergio', 33, 'Atacant', 200000, 20, 6, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Gundogan', 'Ilkay', 30, 'Mijlocas', 180000, 36, 12, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Stones', 'John', 27, 'Fundas', 150000, 33, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Walker', 'Kyle', 31, 'Fundas', 140000, 32, 1, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Rodri', '', 25, 'Mijlocas', 160000, 35, 0, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Ederson', '', 28, 'Portar', 170000, 37, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Cancelo', 'Joao', 26, 'Fundas', 130000, 30, 1, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Mahrez', 'Riyad', 30, 'Atacant', 190000, 33, 9, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Bernardo Silva', '', 26, 'Mijlocas', 170000, 30, 2, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Foden', 'Phil', 21, 'Mijlocas', 120000, 29, 6, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester City', 'Jesus', 'Gabriel', 24, 'Atacant', 150000, 27, 8, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Ronaldo', 'Cristiano', 36, 'Atacant', 400000, 38, 26, 9);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Fernandes', 'Bruno', 27, 'Mijlocas', 250000, 37, 18, 12);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Rashford', 'Marcus', 23, 'Atacant', 180000, 35, 11, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Pogba', 'Paul', 28, 'Mijlocas', 220000, 32, 5, 12);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Sancho', 'Jadon', 21, 'Atacant', 200000, 29, 7, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Greenwood', 'Mason', 20, 'Atacant', 120000, 30, 9, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Maguire', 'Harry', 28, 'Fundas', 180000, 36, 3, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Shaw', 'Luke', 26, 'Fundas', 150000, 34, 1, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Fred', '', 28, 'Mijlocas', 140000, 33, 1, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Lindelof', 'Victor', 27, 'Fundas', 130000, 29, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Henderson', 'Dean', 24, 'Portar', 160000, 28, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'Martial', 'Anthony', 26, 'Atacant', 170000, 26, 6, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Manchester United', 'McTominay', 'Scott', 24, 'Mijlocas', 100000, 27, 2, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Saint-Maximin', 'Allan', 24, 'Atacant', 80000, 33, 7, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Wilson', 'Callum', 29, 'Atacant', 90000, 30, 12, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Lascelles', 'Jamaal', 27, 'Fundas', 70000, 34, 2, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Almiron', 'Miguel', 27, 'Mijlocas', 60000, 32, 5, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Dubravka', 'Martin', 32, 'Portar', 75000, 28, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Hayden', 'Isaac', 26, 'Mijlocas', 50000, 29, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Clark', 'Ciaran', 31, 'Fundas', 55000, 24, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Willock', 'Joe', 22, 'Mijlocas', 60000, 25, 8, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Lewis', 'Jamal', 23, 'Fundas', 45000, 22, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Schar', 'Fabian', 29, 'Fundas', 60000, 23, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Ritchie', 'Matt', 32, 'Mijlocas', 50000, 20, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Fraser', 'Ryan', 27, 'Mijlocas', 55000, 18, 3, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Newcastle United', 'Manquillo', 'Javier', 27, 'Fundas', 40000, 17, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Pukki', 'Teemu', 31, 'Atacant', 60000, 35, 15, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Cantwell', 'Todd', 23, 'Mijlocas', 50000, 33, 7, 8);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Krul', 'Tim', 33, 'Portar', 55000, 38, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Aarons', 'Max', 21, 'Fundas', 45000, 36, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Buendia', 'Emiliano', 24, 'Mijlocas', 55000, 32, 12, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Hanley', 'Grant', 29, 'Fundas', 40000, 30, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Normann', 'Mathias', 25, 'Mijlocas', 45000, 29, 3, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Gilmour', 'Billy', 20, 'Mijlocas', 50000, 26, 2, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Giannoulis', 'Dimitris', 25, 'Fundas', 40000, 25, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Dowell', 'Kieran', 24, 'Mijlocas', 35000, 22, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Zimmermann', 'Christoph', 28, 'Fundas', 40000, 20, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Rashica', 'Milot', 25, 'Atacant', 55000, 18, 4, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Norwich City', 'Omotoye', 'Tyrese', 18, 'Atacant', 30000, 15, 1, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Ings', 'Danny', 29, 'Atacant', 65000, 30, 13, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Ward-Prowse', 'James', 27, 'Mijlocas', 55000, 35, 6, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'McCarthy', 'Alex', 31, 'Portar', 50000, 38, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Bednarek', 'Jan', 25, 'Fundas', 45000, 36, 2, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Armstrong', 'Stuart', 29, 'Mijlocas', 55000, 34, 8, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Vestergaard', 'Jannik', 29, 'Fundas', 50000, 32, 3, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Walcott', 'Theo', 32, 'Atacant', 60000, 29, 5, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Diallo', 'Ibrahima', 22, 'Mijlocas', 40000, 27, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Redmond', 'Nathan', 27, 'Mijlocas', 45000, 26, 3, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Bertrand', 'Ryan', 31, 'Fundas', 50000, 25, 0, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Adams', 'Che', 25, 'Atacant', 55000, 23, 7, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Valery', 'Yan', 22, 'Fundas', 35000, 21, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Southampton', 'Smallbone', 'Will', 21, 'Mijlocas', 30000, 19, 2, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Kane', 'Harry', 28, 'Atacant', 200000, 38, 23, 14);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Son', 'Heung-min', 29, 'Atacant', 180000, 37, 17, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Lloris', 'Hugo', 35, 'Portar', 150000, 36, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Dier', 'Eric', 27, 'Fundas', 120000, 35, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Højbjerg', 'Pierre-Emile', 26, 'Mijlocas', 140000, 36, 3, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Reguilón', 'Sergio', 24, 'Fundas', 100000, 34, 1, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Bergwijn', 'Steven', 24, 'Atacant', 110000, 32, 5, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Lo Celso', 'Giovani', 25, 'Mijlocas', 130000, 30, 4, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Aurier', 'Serge', 28, 'Fundas', 90000, 31, 0, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Ndombele', 'Tanguy', 24, 'Mijlocas', 120000, 29, 2, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Sánchez', 'Davinson', 25, 'Fundas', 100000, 28, 1, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Alli', 'Dele', 25, 'Mijlocas', 110000, 26, 3, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Winks', 'Harry', 25, 'Mijlocas', 80000, 24, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Tottenham Hotspur', 'Davies', 'Ben', 28, 'Fundas', 90000, 23, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Sarr', 'Ismaila', 24, 'Atacant', 90000, 38, 18, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Dennis', 'Emmanuel', 24, 'Atacant', 80000, 37, 14, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Bachmann', 'Daniel', 27, 'Portar', 70000, 36, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Sierralta', 'Francisco', 24, 'Fundas', 60000, 35, 1, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Cleverley', 'Tom', 32, 'Mijlocas', 70000, 34, 2, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Ngakia', 'Jeremy', 21, 'Fundas', 50000, 32, 0, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Hernández', 'Kwadwo', 23, 'Atacant', 60000, 30, 4, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Sema', 'Ken', 28, 'Mijlocas', 60000, 29, 3, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Troost-Ekong', 'William', 28, 'Fundas', 50000, 28, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Gosling', 'Dan', 31, 'Mijlocas', 60000, 26, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'King', 'Joshua', 29, 'Atacant', 70000, 24, 2, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Cathcart', 'Craig', 32, 'Fundas', 50000, 23, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Hughes', 'Will', 26, 'Mijlocas', 60000, 21, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Watford', 'Masina', 'Adam', 27, 'Fundas', 50000, 19, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Antonio', 'Michail', 31, 'Atacant', 90000, 38, 16, 10);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Soucek', 'Tomas', 26, 'Mijlocas', 80000, 37, 8, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Fabianski', 'Lukasz', 36, 'Portar', 70000, 36, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Cresswell', 'Aaron', 31, 'Fundas', 60000, 35, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Rice', 'Declan', 22, 'Mijlocas', 70000, 34, 2, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Said Benrahma', '', 25, 'Mijlocas', 50000, 32, 3, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Johnson', 'Ben', 21, 'Fundas', 40000, 30, 0, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Bowen', 'Jarrod', 24, 'Atacant', 50000, 29, 5, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Ogbonna', 'Angelo', 33, 'Fundas', 40000, 28, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Fornals', 'Pablo', 25, 'Mijlocas', 50000, 26, 2, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Yarmolenko', 'Andriy', 31, 'Atacant', 60000, 24, 4, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Dawson', 'Craig', 31, 'Fundas', 40000, 23, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Lanzini', 'Manuel', 28, 'Mijlocas', 50000, 21, 1, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'West Ham United', 'Diop', 'Issa', 24, 'Fundas', 40000, 19, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Jimenez', 'Raul', 30, 'Atacant', 90000, 37, 12, 6);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Neves', 'Ruben', 24, 'Mijlocas', 80000, 36, 6, 5);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Patricio', 'Rui', 33, 'Portar', 70000, 35, 0, 0);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Coady', 'Conor', 28, 'Fundas', 60000, 34, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Moutinho', 'Joao', 34, 'Mijlocas', 70000, 33, 3, 7);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Neto', 'Pedro', 21, 'Mijlocas', 50000, 31, 4, 3);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Saiss', 'Romain', 31, 'Fundas', 40000, 29, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Traore', 'Adama', 25, 'Atacant', 50000, 28, 3, 4);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Boly', 'Willy', 30, 'Fundas', 40000, 26, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Podence', 'Daniel', 25, 'Mijlocas', 50000, 24, 2, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Semedo', 'Nelson', 27, 'Fundas', 40000, 23, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Dendoncker', 'Leander', 26, 'Mijlocas', 50000, 21, 1, 2);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Ait Nouri', 'Rayan', 20, 'Fundas', 40000, 19, 0, 1);
+INSERT INTO JUCATOR(cod_jucator, cod_echipa, nume_jucator, prenume_jucator, varsta, pozitie_jucator, salariu, numar_aparitii, numar_goluri, numar_pase_decisive) VALUES (jucator_id_generator.nextval, 'Wolverhampton Wanderers', 'Silva', 'Fabio', 19, 'Atacant', 30000, 17, 2, 1);
+
+
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (1, 'Taylor', 'Anthony', 42);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (2, 'Mason', 'Lee', 39);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (3, 'Atkinson', 'Martin', 50);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (4, 'Dean', 'Michael', 47);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (5, 'Marriner', 'Andre', 45);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (6, 'Oliver', 'Michael', 36);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (7, 'Friend', 'Kevin', 49);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (8, 'Coote', 'David', 38);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (9, 'Kavanagh', 'Chris', 40);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (10, 'Tierney', 'Paul', 35);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (11, 'Dowd', 'Phil', 58);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (12, 'Scott', 'Graham', 43);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (13, 'Madley', 'Andrew', 38);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (14, 'Probert', 'Lee', 49);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (15, 'Attwell', 'Stuart', 39);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (16, 'Pawson', 'Craig', 41);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (17, 'Swabey', 'Tim', 34);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (18, 'Jones', 'Robert', 37);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (19, 'Robertson', 'Darren', 42);
+INSERT INTO ARBITRU(cod_arbitru, nume_arbitru, prenume_arbitru, varsta) VALUES (20, 'Kettle', 'Trevor', 54);
+
+
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+INSERT INTO CARTONAS(cod_cartonas, data_acordare, culoare) VALUES (cartonas_id_generator.nextval, DATE '2022-05-22', 'Galben');
+
+
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 5, 1);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 1, 2);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 3, 1);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 1, 2);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 2, 1);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 1, 0);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 4, 1);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 3, 1);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 3, 2);
+INSERT INTO REZULTAT(cod_rezultat, numar_goluri_gazde, numar_goluri_oaspeti) VALUES (rezultat_id_generator.nextval, 0, 5);
+
+
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Arsenal', 'Everton', 1, 5, 1, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Brentford', 'Leeds United', 3, 10, 2, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Brighton & Hove Albion', 'West Ham United', 4, 7, 3, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Burnley', 'Newcastle United', 5, 16, 4, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Chelsea', 'Watford', 6, 4, 5, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Crystal Palace', 'Manchester United', 7, 3, 6, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Leicester City', 'Southampton', 10, 20, 7, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Liverpool', 'Wolverhampton Wanderers', 11, 1, 8, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Manchester City', 'Aston Villa', 12, 6, 9, DATE '2022-05-22');
+INSERT INTO MECI(cod_meci, cod_echipa_gazda, cod_echipa_oaspete, cod_stadion, cod_arbitru, cod_rezultat, data_meci) VALUES (meci_id_generator.nextval, 'Norwich City', 'Tottenham Hotspur', 15, 9, 10, DATE '2022-05-22');
+
+
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (1, 1, 'Arsenal');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (2, 2, 'Aston Villa');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (3, 3, 'Brentford');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (4, 4, 'Brighton & Hove Albion');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (5, 5, 'Burnley');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (6, 6, 'Chelsea');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (7, 7, 'Crystal Palace');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (8, 8, 'Everton');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (9, 9, 'Leeds United');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (10, 10, 'Leicester City');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (11, 11, 'Liverpool');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (12, 12, 'Manchester City');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (13, 13, 'Manchester United');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (14, 14, 'Newcastle United');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (15, 15, 'Norwich City');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (16, 16, 'Southampton');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (17, 17, 'Tottenham Hotspur');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (18, 18, 'Watford');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (19, 19, 'West Ham United');
+INSERT INTO FINANTEAZA(cod_actiune, cod_patron, cod_echipa) VALUES (20, 20, 'Wolverhampton Wanderers');
+
+
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (1, 5, 1, 174);
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (2, 10, 2, 53);
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (3, 10, 3, 53);
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (4, 16, 4, 309);
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (5, 4, 5, 91);
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (6, 3, 6, 229);
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (7, 1, 7, 211);
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (8, 6, 8, 26);
+INSERT INTO ACORDA(cod_avertisment, cod_arbitru, cod_cartonas, cod_jucator) VALUES (9, 9, 9, 281);
